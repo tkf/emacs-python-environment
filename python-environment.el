@@ -32,10 +32,14 @@
                                            (file-name-directory load-file-name)
                                          default-directory))
 
-(defvar python-environment-root
-  (expand-file-name "env" python-environment--source-dir))
+(defcustom python-environment-root
+  (expand-file-name "env" python-environment--source-dir)
+  "Path to default Python virtual environment."
+  :group 'python-environment)
 
-(defvar python-environment-virtualenv "virtualenv")
+(defcustom python-environment-virtualenv "virtualenv"
+  "virtualenv command to use."
+  :group 'python-environment)
 
 (defun python-environment-make (&optional root)
   "Make virtualenv at ROOT asynchronously and return the deferred object."
