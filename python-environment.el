@@ -46,13 +46,18 @@
   "virtualenv command to use."
   :group 'python-environment)
 
+(defvar python-environment--verbose nil)
+
 (defun python-environment--deferred-process (msg command)
   (message "%s..." msg)
   (deferred:$
     (apply #'deferred:process command)
     (deferred:watch it
       (apply-partially
-       (lambda (msg _) (message "%s...Done" msg))
+       (lambda (msg output)
+         (message "%s...Done" msg)
+         (when python-environment--verbose
+           (princ output)))
        msg))))
 
 (defun python-environment-make (&optional root)
