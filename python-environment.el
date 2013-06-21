@@ -62,11 +62,13 @@
            (princ output)))
        msg))))
 
-(defun python-environment-make (&optional root)
-  "Make virtualenv at ROOT asynchronously and return the deferred object."
+(defun python-environment-make (&optional root virtualenv)
+  "Make virtualenv at ROOT asynchronously and return the deferred object.
+If VIRTUALENV (list of string) is specified, it is used instead of
+`python-environment-virtualenv'."
   (python-environment--deferred-process
    (format "Making virtualenv at %s" root)
-   (append python-environment-virtualenv
+   (append (or virtualenv python-environment-virtualenv)
            (list (or root python-environment-root)))))
 
 (defun python-environment-exist-p (&optional root)
@@ -102,31 +104,34 @@
    (cons (python-environment-bin (car command) root)
          (cdr command))))
 
-(defun python-environment-run (command &optional root)
+(defun python-environment-run (command &optional root virtualenv)
   "Run COMMAND installed in Python virtualenv located at ROOT.
 If ROOT is not specified, shared virtual environment specified by
 `python-environment-root' is used.
+If VIRTUALENV (list of string) is specified, it is used instead of
+`python-environment-virtualenv'.
 
 Use `python-environment-run-block' if you want to wait until
 the command exit."
   (if (python-environment-exist-p root)
       (python-environment--run-1 command root)
     (deferred:$
-      (python-environment-make root)
+      (python-environment-make root virtualenv)
       (deferred:nextc it
         (apply-partially
          (lambda (command root _)
            (python-environment--run-1 command root))
          command root)))))
 
-(defun python-environment-run-block (command &optional root)
+(defun python-environment-run-block (command &optional root virtualenv)
   "Blocking version of `python-environment-run'.
 
 .. warning:: This is experimental!"
   ;; FIXME: DON'T USE `deferred:sync!'!!!
   (lexical-let (raised)
     (prog1
-        (deferred:sync! (deferred:error (python-environment-run command root)
+        (deferred:sync! (deferred:error
+                          (python-environment-run command root virtualenv)
                           (lambda (err) (setq raised err))))
       (when raised
         (error raised)))))
