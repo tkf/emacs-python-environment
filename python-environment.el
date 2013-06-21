@@ -46,10 +46,21 @@
   "virtualenv command to use."
   :group 'python-environment)
 
+(defun python-environment--deferred-process (msg command)
+  (message "%s..." msg)
+  (deferred:$
+    (apply #'deferred:process command)
+    (deferred:watch it
+      (apply-partially
+       (lambda (msg _) (message "%s...Done" msg))
+       msg))))
+
 (defun python-environment-make (&optional root)
   "Make virtualenv at ROOT asynchronously and return the deferred object."
-  (deferred:process python-environment-virtualenv
-    (or root python-environment-root)))
+  (python-environment--deferred-process
+   (format "Making virtualenv at %s" root)
+   (list python-environment-virtualenv
+         (or root python-environment-root))))
 
 (defun python-environment-exist-p (&optional root)
   "Return non-`nil' if virtualenv at ROOT exists."
@@ -79,9 +90,10 @@
                                 (concat "Lib/" path)))
 
 (defun python-environment--run-1 (&optional command root)
-  (apply #'deferred:process
-         (python-environment-bin (car command) root)
-         (cdr command)))
+  (python-environment--deferred-process
+   (format "Running: %s" (mapconcat 'identity command " "))
+   (cons (python-environment-bin (car command) root)
+         (cdr command))))
 
 (defun python-environment-run (command &optional root)
   "Run COMMAND installed in Python virtualenv located at ROOT.
