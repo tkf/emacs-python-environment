@@ -55,6 +55,14 @@
 (pye-deftest pye-test-run ()
   (deferred:sync! (python-environment-run '("python" "--version"))))
 
+(pye-deftest pye-test-block-error ()
+  (let (noerror)
+    (ignore-errors
+      (python-environment-run-block '("python" "-c" "1/0"))
+      (setq noerror t))
+    (when noerror
+      (error "error is NOT raised in `python-environment-run-block'"))))
+
 (provide 'test-python-environment)
 
 ;; Local Variables:

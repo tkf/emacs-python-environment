@@ -29,6 +29,7 @@
 
 ;;; Code:
 
+(eval-when-compile (require 'cl))
 (require 'deferred)
 
 (defconst python-environment-version "0.0.0")
@@ -122,7 +123,12 @@ the command exit."
 
 .. warning:: This is experimental!"
   ;; FIXME: DON'T USE `deferred:sync!'!!!
-  (deferred:sync! (python-environment-run command root)))
+  (lexical-let (raised)
+    (prog1
+        (deferred:sync! (deferred:error (python-environment-run command root)
+                          (lambda (err) (setq raised err))))
+      (when raised
+        (error raised)))))
 
 (provide 'python-environment)
 
