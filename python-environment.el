@@ -38,10 +38,12 @@
 (defvar python-environment-virtualenv "virtualenv")
 
 (defun python-environment-make (&optional root)
+  "Make virtualenv at ROOT asynchronously and return the deferred object."
   (deferred:process python-environment-virtualenv
     (or root python-environment-root)))
 
 (defun python-environment-exist-p (&optional root)
+  "Return non-`nil' if virtualenv at ROOT exists."
   (let ((bin (python-environment-bin root)))
     (and bin (file-exists-p bin))))
 
@@ -53,15 +55,19 @@
           full-path
         (python-environment--existing (cdr paths))))))
 
-(defun python-environment-bin (program &optional root)
+(defun python-environment-bin (path &optional root)
+  "Return full path to ``ROOT/bin/PATH`` or ``ROOT/Script/PATH`` if exists.
+``Script`` is used instead of ``bin`` in typical Windows case."
   (python-environment--existing root
-                                (concat "bin/" program)
-                                (concat "Script/" program)))
+                                (concat "bin/" path)
+                                (concat "Script/" path)))
 
-(defun python-environment-lib (program &optional root)
+(defun python-environment-lib (path &optional root)
+  "Return full path to ``ROOT/lib/PATH`` or ``ROOT/Lib/PATH`` if exists.
+``Lib`` is used instead of ``lib`` in typical Windows case."
   (python-environment--existing root
-                                (concat "lib/" program)
-                                (concat "Lib/" program)))
+                                (concat "lib/" path)
+                                (concat "Lib/" path)))
 
 (defun python-environment--run-1 (&optional command root)
   (apply #'deferred:process
@@ -69,6 +75,12 @@
          (cdr command)))
 
 (defun python-environment-run (command &optional root)
+  "Run COMMAND installed in Python virtualenv located at ROOT.
+If ROOT is not specified, shared virtual environment specified by
+`python-environment-root' is used.
+
+Use `python-environment-run-block' if you want to wait until
+the command exit."
   (if (python-environment-exist-p root)
       (python-environment--run-1 command root)
     (deferred:$
@@ -78,6 +90,13 @@
          (lambda (command root _)
            (python-environment--run-1 command root))
          command root)))))
+
+(defun python-environment-run-block (command &optional root)
+  "Blocking version of `python-environment-run'.
+
+.. warning:: This is experimental!"
+  ;; FIXME: DON'T USE `deferred:sync!'!!!
+  (deferred:sync! (python-environment-run command root)))
 
 (provide 'python-environment)
 
