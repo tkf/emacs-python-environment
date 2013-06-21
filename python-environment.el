@@ -43,7 +43,8 @@
   "Path to default Python virtual environment."
   :group 'python-environment)
 
-(defcustom python-environment-virtualenv "virtualenv"
+(defcustom python-environment-virtualenv
+  (list "virtualenv" "--system-site-packages")
   "virtualenv command to use."
   :group 'python-environment)
 
@@ -65,8 +66,8 @@
   "Make virtualenv at ROOT asynchronously and return the deferred object."
   (python-environment--deferred-process
    (format "Making virtualenv at %s" root)
-   (list python-environment-virtualenv
-         (or root python-environment-root))))
+   (append python-environment-virtualenv
+           (list (or root python-environment-root)))))
 
 (defun python-environment-exist-p (&optional root)
   "Return non-`nil' if virtualenv at ROOT exists."
