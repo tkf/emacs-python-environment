@@ -93,7 +93,7 @@ the command exit."
   (if (python-environment-exist-p root)
       (python-environment--run-1 command root)
     (deferred:$
-      (python-environment-make)
+      (python-environment-make root)
       (deferred:nextc it
         (apply-partially
          (lambda (command root _)
