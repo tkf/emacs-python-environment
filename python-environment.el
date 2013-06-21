@@ -3,6 +3,9 @@
 ;; Copyright (C) 2013 Takafumi Arakaki
 
 ;; Author: Takafumi Arakaki <aka.tkf at gmail.com>
+;; Keywords: applications, tools
+;; Version: 0
+;; Package-Requires: ((deferred "0.3.1"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -27,6 +30,8 @@
 ;;; Code:
 
 (require 'deferred)
+
+(defconst python-environment-version "0.0.0")
 
 (defvar python-environment--source-dir (if load-file-name
                                            (file-name-directory load-file-name)
