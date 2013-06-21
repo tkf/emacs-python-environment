@@ -42,14 +42,16 @@
     (or root python-environment-root)))
 
 (defun python-environment-exist-p (&optional root)
-  (file-exists-p (or root python-environment-root)))
+  (let ((bin (python-environment-bin root)))
+    (and bin (file-exists-p bin))))
 
 (defun python-environment--existing (root &rest paths)
   (when paths
-    (if (file-exists-p (expand-file-name (car paths)
-                                         (or root python-environment-root)))
-        (car paths)
-      (python-environment--existing (cdr paths)))))
+    (let ((full-path (expand-file-name (car paths)
+                                       (or root python-environment-root))))
+      (if (file-exists-p full-path)
+          full-path
+        (python-environment--existing (cdr paths))))))
 
 (defun python-environment-bin (program &optional root)
   (python-environment--existing root
@@ -66,14 +68,16 @@
          (python-environment-bin (car command) root)
          (cdr command)))
 
-(defun python-environment-run (&optional command root)
+(defun python-environment-run (command &optional root)
   (if (python-environment-exist-p root)
       (python-environment--run-1 command root)
     (deferred:$
       (python-environment-make)
       (deferred:nextc it
-        (lambda (_)
-          (python-environment--run-1 command root))))))
+        (apply-partially
+         (lambda (command root _)
+           (python-environment--run-1 command root))
+         command root)))))
 
 (provide 'python-environment)
 
