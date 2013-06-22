@@ -62,11 +62,12 @@
   "Make virtualenv at ROOT asynchronously and return the deferred object.
 If VIRTUALENV (list of string) is specified, it is used instead of
 `python-environment-virtualenv'."
-  (python-environment--deferred-process
-   (format "Making virtualenv at %s" root)
-   (append (or virtualenv python-environment-virtualenv)
-           (list (convert-standard-filename
-                  (expand-file-name (or root python-environment-root)))))))
+  (let ((path (convert-standard-filename (expand-file-name
+                                          (or root python-environment-root)))))
+    (python-environment--deferred-process
+     (format "Making virtualenv at %s" path)
+     (append (or virtualenv python-environment-virtualenv)
+             (list path)))))
 
 (defun python-environment-exist-p (&optional root)
   "Return non-`nil' if virtualenv at ROOT exists."
