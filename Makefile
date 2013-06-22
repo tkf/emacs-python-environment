@@ -1,12 +1,15 @@
 CARTON ?= carton
 export EMACS ?= emacs
+EMACS_TEST = ${CARTON} exec ${EMACS} -Q \
+--directory . --load test-python-environment.el
 
 .PHONY: test deps clean purge
 
 test: deps
-	${CARTON} exec ${EMACS} -Q --batch \
-		--directory . --load test-python-environment.el \
-		-f ert-run-tests-batch-and-exit
+	${EMACS_TEST} --batch -f ert-run-tests-batch-and-exit
+
+itest: deps
+	${EMACS_TEST} --eval "(ert t)"
 
 deps: elpa
 elpa: Carton
