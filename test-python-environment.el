@@ -40,6 +40,8 @@
          (delete-directory ,path t)))))
 
 (defmacro pye-deftest (name args &rest body)
+  "Customized `ert-deftest'.  Bind `python-environment-root' to a
+temporary directory while executing BODY."
   (declare (debug (&define :name test
                            name sexp [&optional stringp]
                            [&rest keywordp sexp] def-body))
@@ -50,6 +52,8 @@
        ,@body)))
 
 (defmacro pye-with-mixed-environment (environment &rest body)
+  "Mix-in ENVIRONMENT to `process-environment' while executing `BODY'.
+ENVIRONMENT is a list whose element is arguments (i.e., list) to `setenv'."
   (declare (debug (sexp &rest form))
            (indent 1))
   `(let ((process-environment (mapcar #'identity process-environment)))
@@ -57,7 +61,12 @@
      ,@body))
 
 (defun pye-eval-in-subprocess (sexp &optional environment)
+  "Evaluate SEXP in Emacs launched as subprocess.  Additional environment
+variable can be given as ENVIRONMENT (see `pye-with-mixed-environment')."
   (let ((default-directory (expand-file-name default-directory)))
+    ;; Resolution of "~/" will be affected by `environment' if it
+    ;; includes "$HOME".  So expand it before
+    ;; `pye-with-mixed-environment' to avoid the confusion.
     (pye-with-mixed-environment environment
       (let ((print-length nil)
             (print-level nil))
