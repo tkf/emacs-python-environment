@@ -39,7 +39,7 @@
                                          default-directory))
 
 (defcustom python-environment-root
-  (expand-file-name "env" python-environment--source-dir)
+  (locate-user-emacs-file "python-environment")
   "Path to default Python virtual environment."
   :group 'python-environment)
 
@@ -69,7 +69,8 @@ If VIRTUALENV (list of string) is specified, it is used instead of
   (python-environment--deferred-process
    (format "Making virtualenv at %s" root)
    (append (or virtualenv python-environment-virtualenv)
-           (list (or root python-environment-root)))))
+           (list (convert-standard-filename
+                  (expand-file-name (or root python-environment-root)))))))
 
 (defun python-environment-exist-p (&optional root)
   "Return non-`nil' if virtualenv at ROOT exists."

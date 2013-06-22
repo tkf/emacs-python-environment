@@ -49,6 +49,31 @@
      (pye-test-with-temp-env
        ,@body)))
 
+(defmacro pye-with-mixed-environment (environment &rest body)
+  (declare (debug (sexp &rest form))
+           (indent 1))
+  `(let ((process-environment (mapcar #'identity process-environment)))
+     (mapc (lambda (env) (apply #'setenv env)) ,environment)
+     ,@body))
+
+(defun pye-eval-in-subprocess (sexp &optional environment)
+  (let ((default-directory (expand-file-name default-directory)))
+    (pye-with-mixed-environment environment
+      (let ((print-length nil)
+            (print-level nil))
+        (with-temp-buffer
+          (let ((code (call-process
+                       (concat invocation-directory invocation-name)
+                       nil t nil
+                       "-Q" "--batch"
+                       "--eval" (format "(setq load-path (cons %S '%S))"
+                                        default-directory load-path)
+                       "--load" (locate-library "test-python-environment")
+                       "--eval" (format "%S" sexp))))
+            (unless (eq code 0)
+              (error "Subprocess terminated with code %S.\nOutput:\n%s"
+                     code (buffer-string)))))))))
+
 (pye-deftest pye-test-make-environment ()
   (deferred:sync! (python-environment-make)))
 
@@ -65,6 +90,18 @@
       (setq noerror t))
     (when noerror
       (error "error is NOT raised in `python-environment-run-block'"))))
+
+(ert-deftest pye-test-eval-in-subprocess ()
+  (pye-eval-in-subprocess '(+ 1 2))
+  (should-error (pye-eval-in-subprocess '(error "some error"))))
+
+(pye-deftest pye-test-bare-make-environment ()
+  (let ((tmp-home python-environment-root))
+    (pye-eval-in-subprocess '(deferred:sync! (python-environment-make))
+                            `(("HOME" ,tmp-home)))
+    (should (file-directory-p (expand-file-name
+                               ".emacs.d/python-environment"
+                               tmp-home)))))
 
 (provide 'test-python-environment)
 
