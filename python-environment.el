@@ -34,10 +34,6 @@
 
 (defconst python-environment-version "0.0.0")
 
-(defvar python-environment--source-dir (if load-file-name
-                                           (file-name-directory load-file-name)
-                                         default-directory))
-
 (defcustom python-environment-root
   (locate-user-emacs-file "python-environment")
   "Path to default Python virtual environment."
