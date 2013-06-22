@@ -55,6 +55,9 @@
 (pye-deftest pye-test-run ()
   (deferred:sync! (python-environment-run '("python" "--version"))))
 
+(pye-deftest pye-test-run-block ()
+  (python-environment-run-block '("python" "--version")))
+
 (pye-deftest pye-test-block-error ()
   (let (noerror)
     (ignore-errors
