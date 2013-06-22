@@ -93,12 +93,7 @@ variable can be given as ENVIRONMENT (see `pye-with-mixed-environment')."
   (python-environment-run-block '("python" "--version")))
 
 (pye-deftest pye-test-block-error ()
-  (let (noerror)
-    (ignore-errors
-      (python-environment-run-block '("python" "-c" "1/0"))
-      (setq noerror t))
-    (when noerror
-      (error "error is NOT raised in `python-environment-run-block'"))))
+  (should-error (python-environment-run-block '("python" "-c" "1/0"))))
 
 (ert-deftest pye-test-eval-in-subprocess ()
   (pye-eval-in-subprocess '(+ 1 2))
