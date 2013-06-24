@@ -59,7 +59,7 @@
        msg))))
 
 (defun python-environment-make (&optional root virtualenv)
-  "Make virtualenv at ROOT asynchronously and return the deferred object.
+  "Make virtualenv at ROOT asynchronously and return a deferred object.
 If VIRTUALENV (list of string) is specified, it is used instead of
 `python-environment-virtualenv'."
   (let ((path (convert-standard-filename (expand-file-name
@@ -103,7 +103,8 @@ If VIRTUALENV (list of string) is specified, it is used instead of
          (cdr command))))
 
 (defun python-environment-run (command &optional root virtualenv)
-  "Run COMMAND installed in Python virtualenv located at ROOT.
+  "Run COMMAND installed in Python virtualenv located at ROOT
+asynchronously and return a deferred object.
 If ROOT is not specified, shared virtual environment specified by
 `python-environment-root' is used.
 If VIRTUALENV (list of string) is specified, it is used instead of
