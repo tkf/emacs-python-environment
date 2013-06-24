@@ -69,7 +69,7 @@ If VIRTUALENV (list of string) is specified, it is used instead of
      (append (or virtualenv python-environment-virtualenv)
              (list path)))))
 
-(defun python-environment-exist-p (&optional root)
+(defun python-environment-exists-p (&optional root)
   "Return non-`nil' if virtualenv at ROOT exists."
   (let ((bin (python-environment-bin root)))
     (and bin (file-exists-p bin))))
@@ -112,7 +112,7 @@ If VIRTUALENV (list of string) is specified, it is used instead of
 
 Use `python-environment-run-block' if you want to wait until
 the command exit."
-  (if (python-environment-exist-p root)
+  (if (python-environment-exists-p root)
       (python-environment--run-1 command root)
     (deferred:$
       (python-environment-make root virtualenv)
