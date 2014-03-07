@@ -63,11 +63,13 @@
 If VIRTUALENV (list of string) is specified, it is used instead of
 `python-environment-virtualenv'."
   (let ((path (convert-standard-filename (expand-file-name
-                                          (or root python-environment-root)))))
+                                          (or root python-environment-root))))
+        (virtualenv (or virtualenv python-environment-virtualenv)))
+    (unless (executable-find (car virtualenv))
+      (error "Program named %S does not exist." (car virtualenv)))
     (python-environment--deferred-process
      (format "Making virtualenv at %s" path)
-     (append (or virtualenv python-environment-virtualenv)
-             (list path)))))
+     (append virtualenv (list path)))))
 
 (defun python-environment-exists-p (&optional root)
   "Return non-`nil' if virtualenv at ROOT exists."

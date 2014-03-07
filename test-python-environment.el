@@ -83,6 +83,9 @@ variable can be given as ENVIRONMENT (see `pye-with-mixed-environment')."
               (error "Subprocess terminated with code %S.\nOutput:\n%s"
                      code (buffer-string)))))))))
 
+(pye-deftest pye-test-make-environment-with-non-existing-command ()
+  (should-error (python-environment-make nil '("non-existing-command"))))
+
 (pye-deftest pye-test-make-environment ()
   (deferred:sync! (python-environment-make)))
 
