@@ -12,6 +12,9 @@ matrix:
     - env: EMACS=emacs-snapshot EMACS_PPA=ppa:cassou/emacs
     - env: EMACS=emacs-snapshot EMACS_PPA=ppa:ubuntu-elisp/ppa
 before_install:
+  # Install virtualenv
+  - sudo apt-get install -qq python-virtualenv
+
   # Install Emacs
   - if [ -n "$EMACS_PPA" ]; then
       sudo add-apt-repository -y "$EMACS_PPA";
