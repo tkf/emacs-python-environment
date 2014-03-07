@@ -1,7 +1,11 @@
-CARTON ?= carton
+CASK ?= cask
 export EMACS ?= emacs
-EMACS_TEST = ${CARTON} exec ${EMACS} -Q \
+EMACS_TEST = ${CASK} exec ${EMACS} -Q \
 --directory . --load test-python-environment.el
+
+ELPA_DIR = \
+	.cask/$(shell ${EMACS} -Q --batch --eval '(princ emacs-version)')/elpa
+# See: cask-elpa-dir
 
 .PHONY: test deps clean purge
 
@@ -11,13 +15,14 @@ test: deps
 itest: deps
 	${EMACS_TEST} --eval "(ert t)"
 
-deps: elpa
-elpa: Carton
-	${CARTON} install
+deps: ${ELPA_DIR}
+${ELPA_DIR}: Cask
+	${CASK} install
+	test -d $@
 	touch $@
 
 clean:
 	rm -f *.elc
 
 purge: clean
-	rm -rf elpa
+	rm -rf ${ELPA_DIR}
