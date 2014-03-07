@@ -1,20 +1,35 @@
 language: emacs-lisp
 env:
   matrix:
-    - EMACS=emacs23
-    - EMACS=emacs24
-    - EMACS=emacs-snapshot
+    - EMACS=emacs
+    - EMACS=emacs24 EMACS_PPA=ppa:cassou/emacs
+    - EMACS=emacs-snapshot EMACS_PPA=ppa:cassou/emacs
+    - EMACS=emacs-snapshot EMACS_PPA=ppa:ubuntu-elisp/ppa
   global:
-    - CARTON=$HOME/.carton/bin/carton
+    - CASK=$HOME/.cask/bin/cask
 matrix:
   allow_failures:
-    - env: EMACS=emacs-snapshot
+    - env: EMACS=emacs-snapshot EMACS_PPA=ppa:cassou/emacs
+    - env: EMACS=emacs-snapshot EMACS_PPA=ppa:ubuntu-elisp/ppa
 before_install:
-  - sudo add-apt-repository -y ppa:cassou/emacs
+  # Install Emacs
+  - if [ -n "$EMACS_PPA" ]; then
+      sudo add-apt-repository -y "$EMACS_PPA";
+    fi
   - sudo apt-get update -qq
-  - sudo apt-get install -qq $EMACS python-virtualenv
-  - curl -fsSkL --max-time 10 --retry 10 --retry-delay 10
-        https://raw.github.com/rejeep/carton/master/go | sh
+  - sudo apt-get install --force-yes -qq "$EMACS"
+  - sudo apt-get install --force-yes -qq "${EMACS}-el" || true  # OK to fail
+
+  # Install Cask
+  - curl -fsSkL
+        --max-time 10
+        --retry 10
+        --retry-delay 10
+        https://raw.github.com/cask/cask/master/go
+        | python
+
+  # The following command does (should) not have any effect on test,
+  # but to separate installation phase and testing phase:
   - make deps
 script:
   - make test
