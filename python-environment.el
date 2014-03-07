@@ -58,18 +58,44 @@
            (princ output)))
        msg))))
 
-(defun python-environment-make (&optional root virtualenv)
-  "Make virtualenv at ROOT asynchronously and return a deferred object.
-If VIRTUALENV (list of string) is specified, it is used instead of
-`python-environment-virtualenv'."
+(defun python-environment--blocking-process (msg command)
+  (message "%s (SYNC)..." msg)
+  (let ((exit-code
+         (if python-environment--verbose
+             (with-temp-buffer
+               (apply #'call-process (car command)
+                      nil                    ; INFILE (no input)
+                      t                      ; BUFFER (output to this buffer)
+                      nil                    ; DISPLAY (no refresh is needed)
+                      (cdr command))
+               (princ (buffer-string)))
+           (apply #'call-process (car command) nil nil nil (cdr command)))))
+    (message "%s (SYNC)...Done" msg)
+    (unless (= exit-code 0)
+      (error "Command %S exits with error code %S." command exit-code))))
+
+(defun python-environment--make-with-runner (proc-runner root virtualenv)
   (let ((path (convert-standard-filename (expand-file-name
                                           (or root python-environment-root))))
         (virtualenv (or virtualenv python-environment-virtualenv)))
     (unless (executable-find (car virtualenv))
       (error "Program named %S does not exist." (car virtualenv)))
-    (python-environment--deferred-process
-     (format "Making virtualenv at %s" path)
-     (append virtualenv (list path)))))
+    (funcall proc-runner
+             (format "Making virtualenv at %s" path)
+             (append virtualenv (list path)))))
+
+(defun python-environment-make (&optional root virtualenv)
+  "Make virtualenv at ROOT asynchronously and return a deferred object.
+If VIRTUALENV (list of string) is specified, it is used instead of
+`python-environment-virtualenv'."
+  (python-environment--make-with-runner
+   #'python-environment--deferred-process
+   root virtualenv))
+
+(defun python-environment-make-block (&optional root virtualenv)
+  (python-environment--make-with-runner
+   #'python-environment--blocking-process
+   root virtualenv))
 
 (defun python-environment-exists-p (&optional root)
   "Return non-`nil' if virtualenv at ROOT exists."
@@ -98,11 +124,21 @@ If VIRTUALENV (list of string) is specified, it is used instead of
                                 (concat "lib/" path)
                                 (concat "Lib/" path)))
 
+(defun python-environment--run-with-runner (proc-runner command root)
+  (funcall proc-runner
+           (format "Running: %s" (mapconcat 'identity command " "))
+           (cons (python-environment-bin (car command) root)
+                 (cdr command))))
+
 (defun python-environment--run-1 (&optional command root)
-  (python-environment--deferred-process
-   (format "Running: %s" (mapconcat 'identity command " "))
-   (cons (python-environment-bin (car command) root)
-         (cdr command))))
+  (python-environment--run-with-runner
+   #'python-environment--deferred-process
+   command root))
+
+(defun python-environment--run-block-1 (command root)
+  (python-environment--run-with-runner
+   #'python-environment--blocking-process
+   command root))
 
 (defun python-environment-run (command &optional root virtualenv)
   "Run COMMAND installed in Python virtualenv located at ROOT
@@ -126,16 +162,12 @@ the command exit."
 
 (defun python-environment-run-block (command &optional root virtualenv)
   "Blocking version of `python-environment-run'.
-
-.. warning:: This is experimental!"
-  ;; FIXME: DON'T USE `deferred:sync!'!!!
-  (lexical-let (raised)
-    (prog1
-        (deferred:sync! (deferred:error
-                          (python-environment-run command root virtualenv)
-                          (lambda (err) (setq raised err))))
-      (when raised
-        (error raised)))))
+I recommend NOT to use this function in interactive commands.
+Emacs users have more important things to than waiting for some
+command to finish."
+  (unless (python-environment-exists-p root)
+    (python-environment-make-block root virtualenv))
+  (python-environment--run-block-1 command root))
 
 (provide 'python-environment)
 
