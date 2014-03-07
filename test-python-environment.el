@@ -107,7 +107,7 @@ variable can be given as ENVIRONMENT (see `pye-with-mixed-environment')."
     (pye-eval-in-subprocess '(deferred:sync! (python-environment-make))
                             `(("HOME" ,tmp-home)))
     (should (file-directory-p (expand-file-name
-                               ".emacs.d/python-environment"
+                               ".emacs.d/python-environments/default"
                                tmp-home)))))
 
 (provide 'test-python-environment)
