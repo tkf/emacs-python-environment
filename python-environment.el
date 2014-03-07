@@ -93,6 +93,9 @@ If VIRTUALENV (list of string) is specified, it is used instead of
    root virtualenv))
 
 (defun python-environment-make-block (&optional root virtualenv)
+  "Blocking version of `python-environment-make'.
+I recommend NOT to use this function in interactive commands.
+For reason, see `python-environment-run-block'"
   (python-environment--make-with-runner
    #'python-environment--blocking-process
    root virtualenv))
