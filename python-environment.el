@@ -35,7 +35,7 @@
 (defconst python-environment-version "0.0.0")
 
 (defcustom python-environment-directory
-  (locate-user-emacs-file "python-environments")
+  (locate-user-emacs-file ".python-environments")
   "Path to directory to store all Python virtual environments"
   :group 'python-environment)
 
@@ -43,7 +43,7 @@
   "Default Python virtual environment name.
 This is a name of directory relative to `python-environment-directory'.
 Thus, typically the default virtual environment path is
-``~/.emacs.d/python-environments/default``."
+``~/.emacs.d/.python-environments/default``."
   :group 'python-environment)
 
 (defcustom python-environment-virtualenv
