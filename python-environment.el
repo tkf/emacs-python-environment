@@ -34,9 +34,16 @@
 
 (defconst python-environment-version "0.0.0")
 
-(defcustom python-environment-root
-  (locate-user-emacs-file "python-environment")
-  "Path to default Python virtual environment."
+(defcustom python-environment-directory
+  (locate-user-emacs-file ".python-environments")
+  "Path to directory to store all Python virtual environments"
+  :group 'python-environment)
+
+(defcustom python-environment-default-root-name "default"
+  "Default Python virtual environment name.
+This is a name of directory relative to `python-environment-directory'.
+Thus, typically the default virtual environment path is
+``~/.emacs.d/.python-environments/default``."
   :group 'python-environment)
 
 (defcustom python-environment-virtualenv
@@ -74,9 +81,14 @@
     (unless (= exit-code 0)
       (error "Command %S exits with error code %S." command exit-code))))
 
+
+(defun python-environment-root-path (&optional root)
+  (expand-file-name (or root python-environment-default-root-name)
+                    python-environment-directory))
+
 (defun python-environment--make-with-runner (proc-runner root virtualenv)
-  (let ((path (convert-standard-filename (expand-file-name
-                                          (or root python-environment-root))))
+  (let ((path (convert-standard-filename
+               (python-environment-root-path root)))
         (virtualenv (or virtualenv python-environment-virtualenv)))
     (unless (executable-find (car virtualenv))
       (error "Program named %S does not exist." (car virtualenv)))
@@ -108,7 +120,7 @@ For reason, see `python-environment-run-block'"
 (defun python-environment--existing (root &rest paths)
   (when paths
     (let ((full-path (expand-file-name (car paths)
-                                       (or root python-environment-root))))
+                                       (python-environment-root-path root))))
       (if (file-exists-p full-path)
           full-path
         (python-environment--existing (cdr paths))))))
@@ -147,7 +159,7 @@ For reason, see `python-environment-run-block'"
   "Run COMMAND installed in Python virtualenv located at ROOT
 asynchronously and return a deferred object.
 If ROOT is not specified, shared virtual environment specified by
-`python-environment-root' is used.
+`python-environment-default-root-name' is used.
 If VIRTUALENV (list of string) is specified, it is used instead of
 `python-environment-virtualenv'.
 
