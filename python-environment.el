@@ -126,14 +126,14 @@ For reason, see `python-environment-run-block'"
         (python-environment--existing (cdr paths))))))
 
 (defun python-environment-bin (path &optional root)
-  "Return full path to ``ROOT/bin/PATH`` or ``ROOT/Script/PATH`` if exists.
+  "Return full path to \"ROOT/bin/PATH\" or \"ROOT/Script/PATH\" if exists.
 ``Script`` is used instead of ``bin`` in typical Windows case."
   (python-environment--existing root
                                 (concat "bin/" path)
                                 (concat "Script/" path)))
 
 (defun python-environment-lib (path &optional root)
-  "Return full path to ``ROOT/lib/PATH`` or ``ROOT/Lib/PATH`` if exists.
+  "Return full path to \"ROOT/lib/PATH\" or \"ROOT/Lib/PATH\" if exists.
 ``Lib`` is used instead of ``lib`` in typical Windows case."
   (python-environment--existing root
                                 (concat "lib/" path)
