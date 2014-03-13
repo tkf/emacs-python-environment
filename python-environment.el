@@ -62,7 +62,7 @@ Thus, typically the default virtual environment path is
        (lambda (msg output)
          (message "%s...Done" msg)
          (when python-environment--verbose
-           (princ output)))
+           (message output)))
        msg))))
 
 (defun python-environment--blocking-process (msg command)
@@ -70,12 +70,13 @@ Thus, typically the default virtual environment path is
   (let ((exit-code
          (if python-environment--verbose
              (with-temp-buffer
-               (apply #'call-process (car command)
-                      nil                    ; INFILE (no input)
-                      t                      ; BUFFER (output to this buffer)
-                      nil                    ; DISPLAY (no refresh is needed)
-                      (cdr command))
-               (princ (buffer-string)))
+               (prog1
+                   (apply #'call-process (car command)
+                          nil         ; INFILE (no input)
+                          t           ; BUFFER (output to this buffer)
+                          nil         ; DISPLAY (no refresh is needed)
+                          (cdr command))
+                 (message (buffer-string))))
            (apply #'call-process (car command) nil nil nil (cdr command)))))
     (message "%s (SYNC)...Done" msg)
     (unless (= exit-code 0)

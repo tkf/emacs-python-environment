@@ -100,6 +100,32 @@ variable can be given as ENVIRONMENT (see `pye-with-mixed-environment')."
                    (message "test-2"))
                  "test-1\ntest-2\n")))
 
+(defun pye-test-proc-runner-output-message (proc-runner desired-output)
+  (let* ((command '("echo" "DUMMY-ECHO-MESSAGE"))
+         (python-environment--verbose t)
+         (message-output
+          (pye-test-with-capture-message
+            (funcall proc-runner "DUMMY-MESSAGE" command))))
+    (should (equal message-output desired-output))))
+
+(ert-deftest pye-test-deferred-process-output-message ()
+  (pye-test-proc-runner-output-message
+   (lambda (msg command)
+     (deferred:sync! (python-environment--deferred-process msg command))) "\
+DUMMY-MESSAGE...Done
+DUMMY-ECHO-MESSAGE
+
+"))
+
+(ert-deftest pye-test-blocking-process-output-message ()
+  (pye-test-proc-runner-output-message
+   #'python-environment--blocking-process "\
+DUMMY-MESSAGE (SYNC)...
+DUMMY-ECHO-MESSAGE
+
+DUMMY-MESSAGE (SYNC)...Done
+"))
+
 (pye-deftest pye-test-make-environment-with-non-existing-command ()
   (should-error (python-environment-make nil '("non-existing-command"))))
 
