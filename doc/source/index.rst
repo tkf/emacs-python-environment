@@ -1,17 +1,34 @@
-.. Emacs Python Environment documentation master file, created by
-   sphinx-quickstart on Thu Mar 13 19:36:29 2014.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. include:: ../../README.rst
 
-Welcome to Emacs Python Environment's documentation!
-====================================================
+.. el:require:: python-environment
 
-Contents:
+End user configuration
+======================
 
-.. toctree::
-   :maxdepth: 2
+.. el:variable:: python-environment-directory
+   :auto:
+.. el:variable:: python-environment-default-root-name
+   :auto:
+.. el:variable:: python-environment-virtualenv
+   :auto:
 
+API functions
+=============
 
+.. el:function:: python-environment-make
+   :auto:
+.. el:function:: python-environment-make-block
+   :auto:
+.. el:function:: python-environment-run
+   :auto:
+.. el:function:: python-environment-run-block
+   :auto:
+.. el:function:: python-environment-exists-p
+   :auto:
+.. el:function:: python-environment-bin
+   :auto:
+.. el:function:: python-environment-lib
+   :auto:
 
 Indices and tables
 ==================

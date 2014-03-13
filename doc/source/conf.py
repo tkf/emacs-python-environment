@@ -31,6 +31,7 @@ import os
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
+    'sphinxcontrib.emacs',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -258,3 +259,8 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None}
+
+
+# -- Options for Emacs ----------------------------------------------------
+
+emacs_lisp_load_path = [os.path.abspath(os.path.join('..', '..',))]
