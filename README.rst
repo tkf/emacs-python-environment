@@ -12,9 +12,17 @@
      <https://travis-ci.org/tkf/emacs-python-environment>`_ |build-status|
 
 
-When you write Emacs plugin which uses Python script, you would want to
-setup Python modules for that script easily from Emacs.  You can use
-python-environment.el to do that::
+Emacs integrates well with external tools written in languages other
+than Emacs Lisp and thus use of these tools should be encouraged.
+However, many people try to avoid using non-Emacs Lisp software tools
+since it makes installation of their Emacs plugin hard.
+python-environment.el solves this problem (only for the case the tool
+is written in Python) by providing virtualenv API in Emacs Lisp so
+that you can automate installation of tools written in Python.
+
+Let's say you write Emacs plugin which uses Python script.  Then you
+would want to setup Python modules for that script easily from Emacs.
+This is how to do that using python-environment.el::
 
    (require 'python-environment)
 
