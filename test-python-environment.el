@@ -83,6 +83,23 @@ variable can be given as ENVIRONMENT (see `pye-with-mixed-environment')."
               (error "Subprocess terminated with code %S.\nOutput:\n%s"
                      code (buffer-string)))))))))
 
+(defmacro pye-test-with-capture-message (&rest form)
+  (declare (debug (&rest form))
+           (indent 0))
+  `(let ((start (make-marker))
+         (message-buffer (get-buffer "*Messages*")))
+     (with-current-buffer message-buffer
+       (set-marker start (point-max)))
+     (progn ,@form)
+     (with-current-buffer message-buffer
+       (buffer-substring start (point-max)))))
+
+(ert-deftest pye-test-test-with-capture-message ()
+  (should (equal (pye-test-with-capture-message
+                   (message "test-1")
+                   (message "test-2"))
+                 "test-1\ntest-2\n")))
+
 (pye-deftest pye-test-make-environment-with-non-existing-command ()
   (should-error (python-environment-make nil '("non-existing-command"))))
 
