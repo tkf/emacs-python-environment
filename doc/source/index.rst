@@ -5,6 +5,9 @@
 End user configuration
 ======================
 
+The following variables are set by end users.  Emacs plugin authors
+*must not* set or let-bind these variables.
+
 .. el:variable:: python-environment-directory
    :auto:
 .. el:variable:: python-environment-default-root-name
