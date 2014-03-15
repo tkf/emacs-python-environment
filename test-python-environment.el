@@ -34,13 +34,13 @@
            (indent 0))
   (let ((path (make-symbol "path")))
     `(let* ((,path (make-temp-file "pye-test-" t))
-            (python-environment-root ,path))
+            (python-environment-directory ,path))
        (unwind-protect
            (progn ,@body)
          (delete-directory ,path t)))))
 
 (defmacro pye-deftest (name args &rest body)
-  "Customized `ert-deftest'.  Bind `python-environment-root' to a
+  "Customized `ert-deftest'.  Bind `python-environment-directory' to a
 temporary directory while executing BODY."
   (declare (debug (&define :name test
                            name sexp [&optional stringp]
@@ -146,7 +146,7 @@ DUMMY-MESSAGE (SYNC)...Done
   (should-error (pye-eval-in-subprocess '(error "some error"))))
 
 (pye-deftest pye-test-bare-make-environment ()
-  (let ((tmp-home python-environment-root))
+  (let ((tmp-home python-environment-directory))
     (pye-eval-in-subprocess '(deferred:sync! (python-environment-make))
                             `(("HOME" ,tmp-home)))
     (should (file-directory-p (expand-file-name
