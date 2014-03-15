@@ -67,17 +67,18 @@ Thus, typically the default virtual environment path is
 
 (defun python-environment--blocking-process (msg command)
   (message "%s (SYNC)..." msg)
-  (let ((exit-code
-         (if python-environment--verbose
-             (with-temp-buffer
-               (prog1
-                   (apply #'call-process (car command)
-                          nil         ; INFILE (no input)
-                          t           ; BUFFER (output to this buffer)
-                          nil         ; DISPLAY (no refresh is needed)
-                          (cdr command))
-                 (message (buffer-string))))
-           (apply #'call-process (car command) nil nil nil (cdr command)))))
+  (let (exit-code output)
+    (with-temp-buffer
+      (setq exit-code
+            (apply #'call-process (car command)
+                   nil                ; INFILE (no input)
+                   t                  ; BUFFER (output to this buffer)
+                   nil                ; DISPLAY (no refresh is needed)
+                   (cdr command)))
+      (setq output (buffer-string)))
+    (when (or python-environment--verbose
+              (not (= exit-code 0)))
+      (message output))
     (message "%s (SYNC)...Done" msg)
     (unless (= exit-code 0)
       (error "Command %S exits with error code %S." command exit-code))))
