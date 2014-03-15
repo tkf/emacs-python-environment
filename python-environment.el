@@ -119,9 +119,25 @@ https://github.com/tkf/emacs-python-environment/issues/3"
              (append virtualenv (list path)))))
 
 (defun python-environment-make (&optional root virtualenv)
-  "Make virtualenv at ROOT asynchronously and return a deferred object.
+  "Make virtual environment at ROOT asynchronously.
+
+This function does not wait until ``virtualenv`` finishes.
+Instead, it returns a deferred object [#]_.  So, if you want to
+do some operation after the ``virtualenv`` command finishes, do
+something like this::
+
+    (deferred:$
+     (python-environment-make)
+     (deferred:nextc it (lambda (output) DO-SOMETHING-HERE)))
+
+If ROOT is specified, it is used instead of
+`python-environment-default-root-name'.  ROOT can be a relative
+path from `python-environment-virtualenv' or an absolute path.
+
 If VIRTUALENV (list of string) is specified, it is used instead of
-`python-environment-virtualenv'."
+`python-environment-virtualenv'.
+
+.. [#] https://github.com/kiwanami/emacs-deferred"
   (python-environment--make-with-runner
    #'python-environment--deferred-process
    root virtualenv))
@@ -135,7 +151,8 @@ For reason, see `python-environment-run-block'"
    root virtualenv))
 
 (defun python-environment-exists-p (&optional root)
-  "Return non-`nil' if virtualenv at ROOT exists."
+  "Return non-`nil' if virtualenv at ROOT exists.
+See `python-environment-make' for how ROOT is interpreted."
   (let ((bin (python-environment-bin root)))
     (and bin (file-exists-p bin))))
 
@@ -149,14 +166,16 @@ For reason, see `python-environment-run-block'"
 
 (defun python-environment-bin (path &optional root)
   "Return full path to \"ROOT/bin/PATH\" or \"ROOT/Script/PATH\" if exists.
-``Script`` is used instead of ``bin`` in typical Windows case."
+``Script`` is used instead of ``bin`` in typical Windows case.
+See `python-environment-make' for how ROOT is interpreted."
   (python-environment--existing root
                                 (concat "bin/" path)
                                 (concat "Script/" path)))
 
 (defun python-environment-lib (path &optional root)
   "Return full path to \"ROOT/lib/PATH\" or \"ROOT/Lib/PATH\" if exists.
-``Lib`` is used instead of ``lib`` in typical Windows case."
+``Lib`` is used instead of ``lib`` in typical Windows case.
+See `python-environment-make' for how ROOT is interpreted."
   (python-environment--existing root
                                 (concat "lib/" path)
                                 (concat "Lib/" path)))
@@ -179,14 +198,18 @@ For reason, see `python-environment-run-block'"
 
 (defun python-environment-run (command &optional root virtualenv)
   "Run COMMAND installed in Python virtualenv located at ROOT
-asynchronously and return a deferred object.
-If ROOT is not specified, shared virtual environment specified by
-`python-environment-default-root-name' is used.
-If VIRTUALENV (list of string) is specified, it is used instead of
-`python-environment-virtualenv'.
+asynchronously.
+
+Instead of waiting for COMMAND to finish, a deferred object [#]_
+is returned so that you can chain operations.
+
+See `python-environment-make' for how ROOT and VIRTUALENV are
+interpreted and how to work with deferred object.
 
 Use `python-environment-run-block' if you want to wait until
-the command exit."
+the command exit (NOT recommended in interactive command).
+
+.. [#] https://github.com/kiwanami/emacs-deferred"
   (if (python-environment-exists-p root)
       (python-environment--run-1 command root)
     (deferred:$
