@@ -7,7 +7,7 @@ ELPA_DIR = \
 	.cask/$(shell ${EMACS} -Q --batch --eval '(princ emacs-version)')/elpa
 # See: cask-elpa-dir
 
-.PHONY: test deps clean purge travis-ci
+.PHONY: test deps _check-deps-readability clean purge travis-ci
 
 test: deps
 	${EMACS_TEST} --batch -f ert-run-tests-batch-and-exit
@@ -19,7 +19,11 @@ deps: ${ELPA_DIR}
 ${ELPA_DIR}: Cask
 	${CASK} install
 	test -d $@
+	${MAKE} _check-deps-readability
 	touch $@
+
+_check-deps-readability:
+	${EMACS_TEST} --batch
 
 clean:
 	rm -f *.elc
