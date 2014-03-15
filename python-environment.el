@@ -36,19 +36,39 @@
 
 (defcustom python-environment-directory
   (locate-user-emacs-file ".python-environments")
-  "Path to directory to store all Python virtual environments"
+  "Path to directory to store all Python virtual environments.  A string.
+
+If you want to change the location to, say ``~/.python-environments``,
+then set it like this in your Emacs setup file::
+
+    (setq python-environment-directory \"~/.python-environments\")"
   :group 'python-environment)
 
 (defcustom python-environment-default-root-name "default"
-  "Default Python virtual environment name.
-This is a name of directory relative to `python-environment-directory'.
+  "Default Python virtual environment name.  A string.
+
+This is a name of directory relative to `python-environment-directory'
+where default virtual environment locates.
 Thus, typically the default virtual environment path is
 ``~/.emacs.d/.python-environments/default``."
   :group 'python-environment)
 
 (defcustom python-environment-virtualenv
   (list "virtualenv" "--system-site-packages")
-  "virtualenv command to use."
+  "``virtualenv`` command to use, including command options.  List of strings.
+
+For example, if you want to use specific Python executable (to
+specify Python version), append ``--python`` option like this::
+
+    (setq python-environment-virtualenv
+          (append python-environment-virtualenv
+                  '(\"--python\" \"PATH/TO/bin/python\")))
+
+I added ``--system-site-packages`` as default, but this is not
+mandatory.  If you don't like it, removing does not break
+anything (well, theoretically).  For reason why it is default,
+see discussion here:
+https://github.com/tkf/emacs-python-environment/issues/3"
   :group 'python-environment)
 
 (defvar python-environment--verbose nil)
