@@ -7,7 +7,7 @@ ELPA_DIR = \
 	.cask/$(shell ${EMACS} -Q --batch --eval '(princ emacs-version)')/elpa
 # See: cask-elpa-dir
 
-.PHONY: test deps clean purge
+.PHONY: test deps clean purge travis-ci
 
 test: deps
 	${EMACS_TEST} --batch -f ert-run-tests-batch-and-exit
@@ -26,3 +26,6 @@ clean:
 
 purge: clean
 	rm -rf ${ELPA_DIR}
+
+travis-ci: test
+	test ! -d ~/.emacs.d/.python-environments

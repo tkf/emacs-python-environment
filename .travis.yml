@@ -35,4 +35,4 @@ before_install:
   # but to separate installation phase and testing phase:
   - make deps
 script:
-  - make test
+  - make travis-ci

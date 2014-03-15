@@ -34,13 +34,13 @@
            (indent 0))
   (let ((path (make-symbol "path")))
     `(let* ((,path (make-temp-file "pye-test-" t))
-            (python-environment-root ,path))
+            (python-environment-directory ,path))
        (unwind-protect
            (progn ,@body)
          (delete-directory ,path t)))))
 
 (defmacro pye-deftest (name args &rest body)
-  "Customized `ert-deftest'.  Bind `python-environment-root' to a
+  "Customized `ert-deftest'.  Bind `python-environment-directory' to a
 temporary directory while executing BODY."
   (declare (debug (&define :name test
                            name sexp [&optional stringp]
@@ -83,6 +83,95 @@ variable can be given as ENVIRONMENT (see `pye-with-mixed-environment')."
               (error "Subprocess terminated with code %S.\nOutput:\n%s"
                      code (buffer-string)))))))))
 
+(defmacro pye-test-with-capture-message (&rest form)
+  (declare (debug (&rest form))
+           (indent 0))
+  `(let ((start (make-marker))
+         (message-buffer (get-buffer "*Messages*")))
+     (with-current-buffer message-buffer
+       (set-marker start (point-max)))
+     (progn ,@form)
+     (with-current-buffer message-buffer
+       (buffer-substring start (point-max)))))
+
+(ert-deftest pye-test-test-with-capture-message ()
+  (should (equal (pye-test-with-capture-message
+                   (message "test-1")
+                   (message "test-2"))
+                 "test-1\ntest-2\n")))
+
+(defun pye-test-proc-runner-output-message (proc-runner desired-output)
+  (let* ((command '("echo" "DUMMY-ECHO-MESSAGE"))
+         (python-environment--verbose t)
+         (message-output
+          (pye-test-with-capture-message
+            (funcall proc-runner "DUMMY-MESSAGE" command))))
+    (should (equal message-output desired-output))))
+
+(ert-deftest pye-test-deferred-process-output-message ()
+  (pye-test-proc-runner-output-message
+   (lambda (msg command)
+     (deferred:sync! (python-environment--deferred-process msg command))) "\
+DUMMY-MESSAGE...Done
+DUMMY-ECHO-MESSAGE
+
+"))
+
+(ert-deftest pye-test-blocking-process-output-message ()
+  (pye-test-proc-runner-output-message
+   #'python-environment--blocking-process "\
+DUMMY-MESSAGE (SYNC)...
+DUMMY-ECHO-MESSAGE
+
+DUMMY-MESSAGE (SYNC)...Done
+"))
+
+(defun pye-test-deferred-process-should-error ()
+  (let (err)
+    (deferred:sync!
+      (deferred:error
+        (python-environment--deferred-process
+         "DUMMY-MESSAGE"
+         '("false"))
+        (lambda (got) (setq err got))))
+    (should err)))
+
+(ert-deftest pye-test-deferred-process-error-without-verbose ()
+  (let ((python-environment--verbose nil))
+    (pye-test-deferred-process-should-error)))
+
+(ert-deftest pye-test-deferred-process-noerror-without-verbose ()
+  (let ((python-environment--verbose nil))
+    (deferred:sync!
+      (python-environment--deferred-process "DUMMY-MESSAGE" '("true")))))
+
+(ert-deftest pye-test-blocking-process-error-without-verbose ()
+  (let ((python-environment--verbose nil))
+    (should-error
+     (python-environment--blocking-process "DUMMY-MESSAGE" '("false")))))
+
+(ert-deftest pye-test-blocking-process-noerror-without-verbose ()
+  (let ((python-environment--verbose nil))
+    (python-environment--blocking-process "DUMMY-MESSAGE" '("true"))))
+
+(ert-deftest pye-test-deferred-process-error-with-verbose ()
+  (let ((python-environment--verbose t))
+    (pye-test-deferred-process-should-error)))
+
+(ert-deftest pye-test-deferred-process-noerror-with-verbose ()
+  (let ((python-environment--verbose t))
+    (deferred:sync!
+      (python-environment--deferred-process "DUMMY-MESSAGE" '("true")))))
+
+(ert-deftest pye-test-blocking-process-error-with-verbose ()
+  (let ((python-environment--verbose t))
+    (should-error
+     (python-environment--blocking-process "DUMMY-MESSAGE" '("false")))))
+
+(ert-deftest pye-test-blocking-process-noerror-with-verbose ()
+  (let ((python-environment--verbose t))
+    (python-environment--blocking-process "DUMMY-MESSAGE" '("true"))))
+
 (pye-deftest pye-test-make-environment-with-non-existing-command ()
   (should-error (python-environment-make nil '("non-existing-command"))))
 
@@ -103,7 +192,7 @@ variable can be given as ENVIRONMENT (see `pye-with-mixed-environment')."
   (should-error (pye-eval-in-subprocess '(error "some error"))))
 
 (pye-deftest pye-test-bare-make-environment ()
-  (let ((tmp-home python-environment-root))
+  (let ((tmp-home python-environment-directory))
     (pye-eval-in-subprocess '(deferred:sync! (python-environment-make))
                             `(("HOME" ,tmp-home)))
     (should (file-directory-p (expand-file-name
