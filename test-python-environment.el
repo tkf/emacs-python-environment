@@ -126,6 +126,52 @@ DUMMY-ECHO-MESSAGE
 DUMMY-MESSAGE (SYNC)...Done
 "))
 
+(defun pye-test-deferred-process-should-error ()
+  (let (err)
+    (deferred:sync!
+      (deferred:error
+        (python-environment--deferred-process
+         "DUMMY-MESSAGE"
+         '("false"))
+        (lambda (got) (setq err got))))
+    (should err)))
+
+(ert-deftest pye-test-deferred-process-error-without-verbose ()
+  (let ((python-environment--verbose nil))
+    (pye-test-deferred-process-should-error)))
+
+(ert-deftest pye-test-deferred-process-noerror-without-verbose ()
+  (let ((python-environment--verbose nil))
+    (deferred:sync!
+      (python-environment--deferred-process "DUMMY-MESSAGE" '("true")))))
+
+(ert-deftest pye-test-blocking-process-error-without-verbose ()
+  (let ((python-environment--verbose nil))
+    (should-error
+     (python-environment--blocking-process "DUMMY-MESSAGE" '("false")))))
+
+(ert-deftest pye-test-blocking-process-noerror-without-verbose ()
+  (let ((python-environment--verbose nil))
+    (python-environment--blocking-process "DUMMY-MESSAGE" '("true"))))
+
+(ert-deftest pye-test-deferred-process-error-with-verbose ()
+  (let ((python-environment--verbose t))
+    (pye-test-deferred-process-should-error)))
+
+(ert-deftest pye-test-deferred-process-noerror-with-verbose ()
+  (let ((python-environment--verbose t))
+    (deferred:sync!
+      (python-environment--deferred-process "DUMMY-MESSAGE" '("true")))))
+
+(ert-deftest pye-test-blocking-process-error-with-verbose ()
+  (let ((python-environment--verbose t))
+    (should-error
+     (python-environment--blocking-process "DUMMY-MESSAGE" '("false")))))
+
+(ert-deftest pye-test-blocking-process-noerror-with-verbose ()
+  (let ((python-environment--verbose t))
+    (python-environment--blocking-process "DUMMY-MESSAGE" '("true"))))
+
 (pye-deftest pye-test-make-environment-with-non-existing-command ()
   (should-error (python-environment-make nil '("non-existing-command"))))
 
