@@ -4,7 +4,7 @@
 
 ;; Author: Takafumi Arakaki <aka.tkf at gmail.com>
 ;; Keywords: applications, tools
-;; Version: 0.0.1alpha1
+;; Version: 0.0.1
 ;; Package-Requires: ((deferred "0.3.1"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -32,7 +32,7 @@
 (eval-when-compile (require 'cl))
 (require 'deferred)
 
-(defconst python-environment-version "0.0.1alpha1")
+(defconst python-environment-version "0.0.1")
 
 (defcustom python-environment-directory
   (locate-user-emacs-file ".python-environments")
