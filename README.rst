@@ -22,7 +22,9 @@ that you can automate installation of tools written in Python.
 
 Let's say you write Emacs plugin which uses Python script.  Then you
 would want to setup Python modules for that script easily from Emacs.
-This is how to do that using python-environment.el::
+This is how to do that using python-environment.el
+
+.. code :: cl
 
    (require 'python-environment)
 
@@ -31,7 +33,9 @@ This is how to do that using python-environment.el::
      (python-environment-run "pip" "install" "epc"))
 
 In your plugin, if you want the path to command installed in the
-virtualenv, do something like this::
+virtualenv, do something like this
+
+.. code :: cl
 
    (start-process NAME BUFFER
                   (python-environment-bin "COMMAND")
