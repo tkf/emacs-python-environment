@@ -162,7 +162,7 @@ See `python-environment-make' for how ROOT is interpreted."
                                        (python-environment-root-path root))))
       (if (file-exists-p full-path)
           full-path
-        (python-environment--existing (cdr paths))))))
+        (apply #'python-environment--existing root (cdr paths))))))
 
 (defun python-environment-bin (path &optional root)
   "Return full path to \"ROOT/bin/PATH\" or \"ROOT/Script/PATH\" if exists.
