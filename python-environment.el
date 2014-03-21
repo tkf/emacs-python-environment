@@ -54,7 +54,10 @@ Thus, typically the default virtual environment path is
   :group 'python-environment)
 
 (defcustom python-environment-virtualenv
-  (list "virtualenv" "--system-site-packages")
+  (list "virtualenv" "--system-site-packages" "--quiet")
+  ;; --quiet is required for Windows.  Without it, virtualenv raises
+  ;; UnicodeEncodeError
+  ;; See: https://github.com/tkf/emacs-jedi/issues/148#issuecomment-38290546
   "``virtualenv`` command to use, including command options.  List of strings.
 
 For example, if you want to use specific Python executable (to
@@ -111,7 +114,9 @@ https://github.com/tkf/emacs-python-environment/issues/3"
 (defun python-environment--make-with-runner (proc-runner root virtualenv)
   (let ((path (convert-standard-filename
                (python-environment-root-path root)))
-        (virtualenv (or virtualenv python-environment-virtualenv)))
+        (virtualenv (append (or virtualenv python-environment-virtualenv)
+                            (when python-environment--verbose
+                              (list "--verbose")))))
     (unless (executable-find (car virtualenv))
       (error "Program named %S does not exist." (car virtualenv)))
     (funcall proc-runner
