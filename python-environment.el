@@ -153,7 +153,7 @@ For reason, see `python-environment-run-block'"
 (defun python-environment-exists-p (&optional root)
   "Return non-`nil' if virtualenv at ROOT exists.
 See `python-environment-make' for how ROOT is interpreted."
-  (let ((bin (python-environment-bin root)))
+  (let ((bin (python-environment-bin "python" root)))
     (and bin (file-exists-p bin))))
 
 (defun python-environment--existing (root &rest paths)
