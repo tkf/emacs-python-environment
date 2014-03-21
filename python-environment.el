@@ -165,14 +165,14 @@ See `python-environment-make' for how ROOT is interpreted."
         (apply #'python-environment--existing root (cdr paths))))))
 
 (defun python-environment-bin (path &optional root)
-  "Return full path to \"ROOT/bin/PATH\" or \"ROOT/Script/PATH\" if exists.
-``Script`` is used instead of ``bin`` in typical Windows case.
+  "Return full path to \"ROOT/bin/PATH\" or \"ROOT/Scripts/PATH\" if exists.
+``Scripts`` is used instead of ``bin`` in typical Windows case.
 In Windows, path with extension \".ext\" may be returned.
 See `python-environment-make' for how ROOT is interpreted."
   (python-environment--existing root
                                 (concat "bin/" path)
-                                (concat "Script/" path)
-                                (concat "Script/" path ".exe")))
+                                (concat "Scripts/" path)
+                                (concat "Scripts/" path ".exe")))
 
 (defun python-environment-lib (path &optional root)
   "Return full path to \"ROOT/lib/PATH\" or \"ROOT/Lib/PATH\" if exists.
