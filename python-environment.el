@@ -29,7 +29,6 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl))
 (require 'deferred)
 
 (defconst python-environment-version "0.0.2alpha0")
