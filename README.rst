@@ -10,6 +10,10 @@
      <https://github.com/tkf/emacs-python-environment/issues>`_ (at GitHub)
    * `Travis CI
      <https://travis-ci.org/tkf/emacs-python-environment>`_ |build-status|
+   * `MELPA
+     <http://melpa.org/#/python-environment>`_ |melpa-badge|
+   * `MELPA Stable
+     <http://stable.melpa.org/#/python-environment>`_ |melpa-stable-badge|
 
 
 Emacs integrates well with external tools written in languages other
@@ -51,3 +55,11 @@ python-environment.el finds the right path.
            ?branch=master
    :target: http://travis-ci.org/tkf/emacs-python-environment
    :alt: Build Status
+.. |melpa-badge|
+   image:: http://melpa.org/packages/python-environment-badge.svg
+   :target: http://melpa.org/#/python-environment
+   :alt: MELPA Badge
+.. |melpa-stable-badge|
+   image:: http://stable.melpa.org/packages/python-environment-badge.svg
+   :target: http://stable.melpa.org/#/python-environment
+   :alt: MELPA Stable Badge
