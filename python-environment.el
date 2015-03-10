@@ -1,10 +1,10 @@
 ;;; python-environment.el --- virtualenv API for Emacs Lisp
 
-;; Copyright (C) 2013 Takafumi Arakaki
+;; Copyright (C) 2015 Takafumi Arakaki
 
 ;; Author: Takafumi Arakaki <aka.tkf at gmail.com>
 ;; Keywords: applications, tools
-;; Version: 0.0.2alpha0
+;; Version: 0.0.2
 ;; Package-Requires: ((deferred "0.3.1"))
 
 ;; This file is NOT part of GNU Emacs.
